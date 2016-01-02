@@ -359,23 +359,30 @@ private void leftRightFlipper(CSSDeclaration dec){
 		
 		if(expression.getMemberCount()>0){		
 			for(int i=0;i<expression.getMemberCount();i++){		
-			
-					CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple)expression.getMemberAtIndex(i);
-					String memberValue=member.getValue();
-					memberValue = memberValue.toLowerCase();
-		
-					if(memberValue.contains("right")){member.setValue(memberValue.replace("right", "left"));}
-					else
-					if(memberValue.contains("left")){member.setValue(memberValue.replace("left", "right"));}
-					else{
-						if(memberValue.endsWith("%")){
-							// value with percentage
-							memberValue=memberValue.replace("%", "");
-							int percent=Integer.valueOf(memberValue);
-							percent=100-percent;
-							member.setValue(String.valueOf(percent)+"%");
-						}
-					}
+				Object object = expression.getMemberAtIndex(i);	
+				if(object instanceof CSSExpressionMemberTermSimple) {
+				
+							
+							CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple) object;
+							String memberValue=member.getValue();
+							memberValue = memberValue.toLowerCase();
+				
+							if(memberValue.contains("right")){member.setValue(memberValue.replace("right", "left"));}
+							else
+							if(memberValue.contains("left")){member.setValue(memberValue.replace("left", "right"));}
+							else{
+								if(memberValue.endsWith("%")){
+									// value with percentage
+									memberValue=memberValue.replace("%", "");
+									int percent=Integer.valueOf(memberValue);
+									percent=100-percent;
+									member.setValue(String.valueOf(percent)+"%");
+								}
+							}
+							
+				}			
+							
+							
 			}
 					
 					
