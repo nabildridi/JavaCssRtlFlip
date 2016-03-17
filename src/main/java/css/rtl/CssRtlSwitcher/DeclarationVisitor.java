@@ -1,19 +1,25 @@
 package css.rtl.CssRtlSwitcher;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
+import com.helger.css.decl.CSSDeclarationList;
 import com.helger.css.decl.CSSExpression;
 import com.helger.css.decl.CSSExpressionMemberTermSimple;
+import com.helger.css.decl.CSSExpressionMemberTermURI;
 import com.helger.css.decl.ECSSExpressionOperator;
 import com.helger.css.decl.ICSSExpressionMember;
 import com.helger.css.decl.shorthand.CSSShortHandDescriptor;
 import com.helger.css.decl.shorthand.CSSShortHandRegistry;
 import com.helger.css.decl.visit.DefaultCSSVisitor;
 import com.helger.css.property.ECSSProperty;
+import com.helger.css.reader.CSSReaderDeclarationList;
+import com.helger.css.writer.CSSWriterSettings;
 
 public class DeclarationVisitor extends DefaultCSSVisitor {
 	
@@ -57,12 +63,12 @@ public class DeclarationVisitor extends DefaultCSSVisitor {
 		
 		//background position
 		if(propertyName.equals("background-position")){
-			backgroundPositionFlipper( dec);
+			backgroundPositionFlipper( dec, "background-position");
 		}
 		
 		//background position x
 		if(propertyName.equals("background-position-x")){
-			backgroundPositionFlipper( dec);
+			backgroundPositionFlipper( dec, "background-position-x");
 		}
 		
 		//background
@@ -75,13 +81,39 @@ public class DeclarationVisitor extends DefaultCSSVisitor {
 			shadowBoxFlipper( dec);
 		}	
 		
+		//background
+		if(propertyName.equals("background-image")){
+			backgroundImageAdding( dec);
+		}
 		
 		
 	}
 
+
+	private void backgroundImageAdding(CSSDeclaration dec){
+		
+		String template = "background: url({0}) right center no-repeat";
+		
+		
+		CSSExpression expression=dec.getExpression();
+		
+		if (expression.getMemberAtIndex(0) instanceof CSSExpressionMemberTermURI) {
+			CSSExpressionMemberTermURI member=(CSSExpressionMemberTermURI)expression.getMemberAtIndex(0);
+			
+			String uri = member.getURIString();
+			template = template.replace("{0}", uri );
+			
+			dec.setProperty("background");
+			CSSDeclarationList aList = CSSReaderDeclarationList.readFromString ( template,   ECSSVersion.CSS30);
+			dec.setExpression(aList.getDeclarationAtIndex (0).getExpression());
+		}
+
+			
+	}
 	
 	
-private void leftRightFlipper(CSSDeclaration dec){
+	
+	private void leftRightFlipper(CSSDeclaration dec){
 		
 		CSSExpression expression=dec.getExpression();
 		CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple)expression.getMemberAtIndex(0);
@@ -103,6 +135,9 @@ private void leftRightFlipper(CSSDeclaration dec){
 
 	private void quadFlipper(CSSDeclaration dec){
 		
+		int membersCount=dec.getExpression().getMemberCount();
+		if(membersCount<2)return;		
+		
 		String propertyName=dec.getProperty();
 		propertyName=propertyName.toLowerCase();
 		
@@ -117,7 +152,9 @@ private void leftRightFlipper(CSSDeclaration dec){
 		List<ICSSExpressionMember> newMembersList =new ArrayList<ICSSExpressionMember>();
 		for(CSSDeclaration splitted:splittedDecls){
 			
-			CSSExpression tempExpression=splitted.getExpression();
+			
+			
+			CSSExpression tempExpression=splitted.getExpression();		
 			
 			for(int i=0;i<tempExpression.getMemberCount();i++){			
 				newMembersList.add(tempExpression.getMemberAtIndex(i));
@@ -126,7 +163,7 @@ private void leftRightFlipper(CSSDeclaration dec){
 		}
 
 		dec.getExpression().removeAllMembers();
-		for(ICSSExpressionMember tempMember : newMembersList){
+		for(ICSSExpressionMember tempMember : newMembersList){			
 			dec.getExpression().addMember(tempMember);
 		}
 		//End add default values for missing fields
@@ -137,7 +174,8 @@ private void leftRightFlipper(CSSDeclaration dec){
 		//get left margin value
 		String leftValue=null;
 		for(CSSDeclaration splitted:splittedDecls){
-			if(splitted.getProperty().equalsIgnoreCase(propertyName + "-left")){
+			
+			if(splitted.getProperty().contains("-left")){
 				CSSExpressionMemberTermSimple m=(CSSExpressionMemberTermSimple)splitted.getExpression().getMemberAtIndex(0);
 				leftValue=m.getValue();
 			}
@@ -146,7 +184,7 @@ private void leftRightFlipper(CSSDeclaration dec){
 		//get right margin value
 		String rightValue=null;
 		for(CSSDeclaration splitted:splittedDecls){
-			if(splitted.getProperty().equalsIgnoreCase(propertyName+"-right")){
+			if(splitted.getProperty().contains("-right")){
 				CSSExpressionMemberTermSimple m=(CSSExpressionMemberTermSimple)splitted.getExpression().getMemberAtIndex(0);
 				rightValue=m.getValue();
 			}
@@ -154,12 +192,12 @@ private void leftRightFlipper(CSSDeclaration dec){
 		
 		//quad set margin left and right
 		for(CSSDeclaration splitted:splittedDecls){
-			if(splitted.getProperty().equalsIgnoreCase(propertyName+"-left")){
+			if(splitted.getProperty().contains("-left")){
 				CSSExpressionMemberTermSimple m=(CSSExpressionMemberTermSimple)splitted.getExpression().getMemberAtIndex(0);
 				m.setValue(rightValue);
 			}
 			
-			if(splitted.getProperty().equalsIgnoreCase(propertyName+"-right")){
+			if(splitted.getProperty().contains("-right")){
 				CSSExpressionMemberTermSimple m=(CSSExpressionMemberTermSimple)splitted.getExpression().getMemberAtIndex(0);
 				m.setValue(leftValue);
 			}
@@ -287,28 +325,36 @@ private void leftRightFlipper(CSSDeclaration dec){
 			
 	}
 	
-	private void backgroundPositionFlipper(CSSDeclaration dec){
+	private void backgroundPositionFlipper(CSSDeclaration dec, String decName){
 		
 		CSSExpression expression=dec.getExpression();
-		
-		if(expression.getMemberCount()>0){		
-			CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple)expression.getMemberAtIndex(0);
-			String memberValue=member.getValue();
-			if(memberValue.equalsIgnoreCase("right")){member.setValue("left");}
-			else
-			if(memberValue.equalsIgnoreCase("left")){member.setValue("right");}
-			else{
-				if(memberValue.endsWith("%")){
-					// value with percentage
-					memberValue=memberValue.replace("%", "");
-					int percent=Integer.valueOf(memberValue);
-					percent=100-percent;
-					member.setValue(String.valueOf(percent)+"%");
-				}
-			}			
+
+		if(expression.getMemberCount()>0){
+			
+						CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple)expression.getMemberAtIndex(0);
+						String memberValue=member.getValue();
+						if(memberValue.equalsIgnoreCase("right")){member.setValue("left");}
+						else
+						if(memberValue.equalsIgnoreCase("left")){member.setValue("right");}
+						else{
+							if(memberValue.endsWith("%")){
+								// value with percentage
+								try {
+									String withoutPercent = memberValue.replaceAll("%", "");
+									int valueInt = Integer.parseInt(withoutPercent);
+									valueInt = 100- valueInt;
+									member.setValue(String.valueOf(valueInt) + "%");
+								} catch (Exception e) {}
+							}
+						}	
+
 		}
 
 			
+		
+		
+		
+		
 	}
 	
 	
@@ -316,30 +362,7 @@ private void leftRightFlipper(CSSDeclaration dec){
 		
 		CSSShortHandDescriptor paddingShorHand = CSSShortHandRegistry.getShortHandDescriptor (ECSSProperty.BACKGROUND);
 		List <CSSDeclaration> splittedDecls = paddingShorHand.getSplitIntoPieces (dec);
-		
-		
-		//add default values for missing fields
-		List<ICSSExpressionMember> newMembersList =new ArrayList<ICSSExpressionMember>();
-		for(CSSDeclaration splitted:splittedDecls){
-			CSSExpression tempExpression=splitted.getExpression();
-			
-			for(int i=0;i<tempExpression.getMemberCount();i++){			
-				newMembersList.add(tempExpression.getMemberAtIndex(i));
-			}
-			
-		}
 
-		dec.getExpression().removeAllMembers();
-		for(ICSSExpressionMember tempMember : newMembersList){
-			dec.getExpression().addMember(tempMember);
-		}
-		//End add default values for missing fields
-		
-		
-		
-		
-		
-		
 		
 		CSSDeclaration bacgroundPositionDec=null;
 		for(CSSDeclaration splitted:splittedDecls){
@@ -356,38 +379,47 @@ private void leftRightFlipper(CSSDeclaration dec){
 	
 		
 		CSSExpression expression=bacgroundPositionDec.getExpression();
-		
-		if(expression.getMemberCount()>0){		
-			for(int i=0;i<expression.getMemberCount();i++){		
-				Object object = expression.getMemberAtIndex(i);	
-				if(object instanceof CSSExpressionMemberTermSimple) {
-				
-							
-							CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple) object;
-							String memberValue=member.getValue();
-							memberValue = memberValue.toLowerCase();
-				
-							if(memberValue.contains("right")){member.setValue(memberValue.replace("right", "left"));}
-							else
-							if(memberValue.contains("left")){member.setValue(memberValue.replace("left", "right"));}
-							else{
-								if(memberValue.endsWith("%")){
-									// value with percentage
-									memberValue=memberValue.replace("%", "");
-									int percent=Integer.valueOf(memberValue);
-									percent=100-percent;
-									member.setValue(String.valueOf(percent)+"%");
-								}
-							}
-							
-				}			
-							
-							
+		if(expression.getMemberCount()>0){
+			
+			CSSExpressionMemberTermSimple member=(CSSExpressionMemberTermSimple)expression.getMemberAtIndex(0);
+			String memberValue=member.getValue();
+			boolean isInteger=true;
+			
+			try {
+				int z=Integer.parseInt(memberValue);
+			} catch (Exception e1) {
+				isInteger=false;
 			}
-					
-					
-					
-		}			
+			
+			
+			if(memberValue.endsWith("%") || isInteger){
+				// value with percentage
+				try {
+					String withoutPercent = memberValue.replaceAll("%", "");
+					int valueInt = Integer.parseInt(withoutPercent);
+					valueInt = 100- valueInt;
+					member.setValue(String.valueOf(valueInt) + "%");
+				} catch (Exception e) {}
+			}
+			
+			
+			CSSWriterSettings aSettings = new CSSWriterSettings (ECSSVersion.CSS30, false);
+			String content = dec.getExpression().getAsCSSString(aSettings, 0);
+			
+			if(content.contains("right")){content = content.replace("right", "left");}
+			else
+			if(content.contains("left")){content = content.replace("left", "right");}	
+
+			 CSSDeclarationList aList = CSSReaderDeclarationList.readFromString ( "background:" + content,   ECSSVersion.CSS30);
+			 dec.setExpression(aList.getDeclarationAtIndex (0).getExpression());
+			
+
+		}		
+		
+		
+		
+		
+		
 	}
 	
 	
