@@ -1,8 +1,9 @@
-package css.rtl.CssRtlSwitcher;
+package org.nd.css;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
@@ -19,7 +20,7 @@ import com.helger.css.writer.CSSWriterSettings;
 
 public class DeclarationVisitor extends DefaultCSSVisitor {
 	
-	Logger log = Logger.getLogger(DeclarationVisitor.class.getName());
+	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	
 

@@ -1,6 +1,8 @@
-package css.rtl.CssRtlSwitcher;
+package org.nd.css;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CSSDeclaration;
@@ -13,7 +15,7 @@ import com.helger.css.writer.CSSWriterSettings;
 
 public class ParserService {
 	
-	Logger log = Logger.getLogger(ParserService.class.getName());
+	private Logger log = LoggerFactory.getLogger(this.getClass());
 		
 	CSSWriterSettings settings = new CSSWriterSettings (ECSSVersion.CSS30, false);
 	CSSWriter cssWriter = new CSSWriter (settings);

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Java Css Rtl Flip</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css"	href="/webjars/font-awesome/5.13.0/css/all.css" />
+<link rel="stylesheet" type="text/css" href="/css/main.css" />
+
+</head>
+<body>
+
+	<nav class="navbar fixed-top navbar-dark bg-dark">
+	  <span class="navbar-brand">Java Css Rtl Flip</span>
+	</nav>
+
+	<div class="container-fluid main-container">
+
+
+		  <div class="row">
+		    
+		    <!-- text area -->
+		    <div class="col-8 card" id="topLeftTextArea">
+				
+				<div class="card-body">
+					
+					<div class="form-group">
+					  <label for="originalText">Paste you css here:</label>
+					  <textarea class="form-control" rows="10" id="originalText"></textarea>
+					</div>
+					
+			      	<button type="button" class="btn btn-primary" onclick="sendText()">Send Text</button>
+
+					<div class="form-group">
+					  <label for="convertedText">Result :</label>
+					  <textarea class="form-control" rows="10" id="convertedText"></textarea>
+					</div>					
+
+				</div>
+
+		    </div>
+		    <!-- end text area -->
+		    
+		    
+		    <div class="col-4 card">
+		    
+	  			<div class="card-body">
+	  			
+	  			<h5 class="card-title">Upload your file(s) for conversion here :</h5>
+	  			
+			
+					<form id="uploadForm" action="/upload">
+					  
+					   <div class="form-group">
+					    <input type="file" name="files" title='Click to add Files' multiple="multiple" />
+					  </div>
+
+					  <button type="button" class="btn btn-primary" id="startUploadButton">Submit</button>
+
+					</form>
+  				
+
+  				</div>
+		    </div>
+		    
+		    
+		  </div>
+		
+			
+			
+		
+		
+
+		
+		
+
+	</div>
+	<!-- /.container -->
+	<script type="text/javascript" src="/webjars/jquery/3.4.1/jquery.min.js"></script>
+	<script type="text/javascript" src="/webjars/popper.js/1.14.3/umd/popper.min.js"></script>
+	<script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/loadingoverlay.min.js"></script>
+	<script src="/js/filesaver.js"></script>
+	<script src="/js/jszip.js"></script>	
+	<script type="text/javascript" src="/js/main.js"></script>
+
+
+
+</body>
+</html>

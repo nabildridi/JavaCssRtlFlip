@@ -1,4 +1,4 @@
-package css.rtl.CssRtlSwitcher;
+package org.nd.css;
 
 import java.util.ArrayList;
 import java.util.HashMap;

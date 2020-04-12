@@ -1,0 +1,12 @@
+.main-container{
+	padding-top: 60px;
+}
+
+.error-popup .modal-content {
+  	background-color: #e89c9c;
+}
+
+
+.scrollBody {
+  overflow-y: scroll;
+}
